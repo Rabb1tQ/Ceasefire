@@ -918,30 +918,50 @@ impl WfpFilterManager {
     pub fn add_filters(&mut self) -> Result<()> {
         tracing::info!("Adding WFP filters");
 
+        // 排障开关：CEASEFIRE_SKIP_FILTERS 位掩码，跳过添加对应过滤器
+        // （1=DNS 抓包 2=流层 4=flow-established 8=出站整形 16=入站整形 32=V6 全部）
+        let skip = std::env::var("CEASEFIRE_SKIP_FILTERS")
+            .ok()
+            .and_then(|v| u32::from_str_radix(v.trim(), 10).ok())
+            .unwrap_or(0);
+        if skip != 0 {
+            tracing::warn!("CEASEFIRE_SKIP_FILTERS={} active, some filters will NOT be added", skip);
+        }
+
         self.add_filter_v4()?;
         self.add_filter_recv_accept()?;
         // DNS 过滤器添加失败不影响主过滤功能
-        if let Err(e) = self.add_filter_dns() {
-            tracing::warn!("DNS filter add failed (DNS capture disabled): {}", e);
+        if skip & 1 == 0 {
+            if let Err(e) = self.add_filter_dns() {
+                tracing::warn!("DNS filter add failed (DNS capture disabled): {}", e);
+            }
         }
         // 限速过滤器失败仅意味着限速不生效，不影响拦截
-        if let Err(e) = self.add_filter_stream() {
-            tracing::warn!("Stream throttle filter add failed (rate limiting disabled): {}", e);
+        if skip & 2 == 0 {
+            if let Err(e) = self.add_filter_stream() {
+                tracing::warn!("Stream throttle filter add failed (rate limiting disabled): {}", e);
+            }
         }
 
 // flow-established 关联过滤器失败只是退回 EStats 兜底
-        if let Err(e) = self.add_filter_flow_established() {
-            tracing::warn!("Flow-established filter add failed (per-flow byte counting disabled): {}", e);
+        if skip & 4 == 0 {
+            if let Err(e) = self.add_filter_flow_established() {
+                tracing::warn!("Flow-established filter add failed (per-flow byte counting disabled): {}", e);
+            }
         }
 
         // 出站整形过滤器失败意味着出站限速退化为仅统计
-        if let Err(e) = self.add_filter_out_transport() {
-            tracing::warn!("Outbound transport shaper filter add failed (outbound shaping disabled): {}", e);
+        if skip & 8 == 0 {
+            if let Err(e) = self.add_filter_out_transport() {
+                tracing::warn!("Outbound transport shaper filter add failed (outbound shaping disabled): {}", e);
+            }
         }
 
         // 入站整形（下载限速）过滤器失败仅意味着下载限速不生效
-        if let Err(e) = self.add_filter_in_transport() {
-            tracing::warn!("Inbound ip packet shaper filter add failed (download shaping disabled): {}", e);
+        if skip & 16 == 0 {
+            if let Err(e) = self.add_filter_in_transport() {
+                tracing::warn!("Inbound ip packet shaper filter add failed (download shaping disabled): {}", e);
+            }
         }
 
         // IPv6 各层过滤器（与 V4 逐层对齐）；add_filter_v6 内部已逐项告警

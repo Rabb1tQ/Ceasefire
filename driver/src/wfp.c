@@ -1049,6 +1049,17 @@ static VOID StreamThrottleCommon(
 
     CfDiagClassifyStream(isV6); // 诊断计数：V4 流层是否被调起的判据
 
+    // 本过滤器注册为 FWP_ACTION_CALLOUT_TERMINATING，WFP 要求 callout 给出
+    // 终结判定：不设置 actionType/不清写权时流数据拿不到放行决定，网卡的
+    // TCP 数据通道会整体停摆（握手能完成但任何带载数据段都被吞，实测
+    // Win10 19045 + VMware NAT 复现；回环与 UDP 不经流层所以幸免）。
+    // 因此无论如何都以 PERMIT 终结本层——本 callout 只做统计，不拦数据。
+    if ((classifyOut->rights & FWPS_RIGHT_ACTION_WRITE) == 0) {
+        return; // 别的 callout 已做终结决策，不越权
+    }
+    classifyOut->actionType = FWP_ACTION_PERMIT;
+    classifyOut->rights &= ~FWPS_RIGHT_ACTION_WRITE;
+
     UINT32 processId = 0;
     BOOLEAN outbound;
     BOOLEAN permitted = TRUE;
