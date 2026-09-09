@@ -134,6 +134,12 @@ async fn get_network_history(state: State<'_, AppState>, filters: Option<ipc::Hi
 }
 
 #[tauri::command]
+async fn get_network_history_count(state: State<'_, AppState>, filters: Option<ipc::HistoryFilters>) -> Result<u64, String> {
+    state.ipc_client.get_network_history_count(filters).await
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 async fn add_app_group_member(state: State<'_, AppState>, group_id: u32, process_path: String, process_name: Option<String>) -> Result<(), String> {
     state.ipc_client.add_app_group_member(group_id, process_path, process_name).await
         .map_err(|e| e.to_string())
@@ -544,6 +550,7 @@ pub fn run() {
             set_app_group_enabled,
             list_connection_decisions,
             get_network_history,
+            get_network_history_count,
             get_app_traffic_stats,
             get_protocol_traffic_stats,
             get_country_traffic_stats,

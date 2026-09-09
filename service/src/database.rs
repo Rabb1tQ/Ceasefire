@@ -1529,15 +1529,33 @@ impl Database {
         .await
     }
 
-    pub async fn get_network_history(&self, filters: &HistoryFilters) -> Result<Vec<NetworkHistoryRecord>> {
-        let mut sql = "SELECT * FROM network_history WHERE 1=1".to_string();
+    /// 连接记录真实总数：与 get_network_history 同一套筛选条件做 COUNT(*)，
+    /// 供 GUI 分页器显示准确"共 N 条"（此前靠前端估算，页码永远只多一页）。
+    pub async fn count_network_history(&self, filters: &HistoryFilters) -> Result<u64> {
+        let (where_sql, bind_values) = Self::build_history_where(filters);
+        let sql = format!("SELECT COUNT(*) FROM network_history WHERE 1=1{}", where_sql);
+        self.run_blocking(move |conn| {
+            let mut stmt = conn.prepare(&sql)
+                .map_err(|e| ServiceError::Database(e.to_string()))?;
+            let params: Vec<_> = bind_values.iter().map(|v| v as &dyn rusqlite::ToSql).collect();
+            let count: u64 = stmt
+                .query_row(params.as_slice(), |row| row.get::<_, i64>(0))
+                .map(|c| c.max(0) as u64)
+                .map_err(|e| ServiceError::Database(e.to_string()))?;
+            Ok(count)
+        })
+        .await
+    }
+
+    /// HistoryFilters → WHERE 子句与绑定值。action/protocol/direction 是枚举
+    /// 名字符串（wire 对称性见 models.rs HistoryFilters 注释），在此解析成枚举
+    /// 后按 DB 侧存储格式（JSON 字符串）绑定；解析失败（脏值/旧调用方）按未
+    /// 筛选处理，与 parse_json 对 DB 脏数据的宽容策略一致。
+    fn build_history_where(filters: &HistoryFilters) -> (String, Vec<rusqlite::types::Value>) {
+        let mut where_sql = String::new();
         let mut param_count = 0;
         let mut bind_values: Vec<rusqlite::types::Value> = Vec::new();
 
-        // HistoryFilters 的 action/protocol/direction 是枚举名字符串（wire 对称性
-        // 见 models.rs HistoryFilters 注释），在此解析成枚举后按 DB 侧存储格式
-        // （JSON 字符串）绑定；解析失败（脏值/旧调用方）按未筛选处理，与
-        // parse_json 对 DB 脏数据的宽容策略一致。
         let action_filter = match filters.action.as_deref() {
             Some("Allow") => Some(RuleAction::Allow),
             Some("Block") => Some(RuleAction::Block),
@@ -1561,39 +1579,46 @@ impl Database {
         if let Some(hours) = filters.hours {
             let cutoff = chrono::Utc::now() - chrono::Duration::hours(hours as i64);
             param_count += 1;
-            sql.push_str(&format!(" AND timestamp >= ?{}", param_count));
+            where_sql.push_str(&format!(" AND timestamp >= ?{}", param_count));
             bind_values.push(rusqlite::types::Value::Text(cutoff.to_rfc3339().into()));
         }
 
         if let Some(action) = action_filter {
             param_count += 1;
-            sql.push_str(&format!(" AND action = ?{}", param_count));
+            where_sql.push_str(&format!(" AND action = ?{}", param_count));
             bind_values.push(rusqlite::types::Value::Text(json_to_string(&action).into()));
         }
 
         if let Some(protocol) = protocol_filter {
             param_count += 1;
-            sql.push_str(&format!(" AND protocol = ?{}", param_count));
+            where_sql.push_str(&format!(" AND protocol = ?{}", param_count));
             bind_values.push(rusqlite::types::Value::Text(json_to_string(&protocol).into()));
         }
 
         if let Some(ref process_path) = filters.process_path {
             param_count += 1;
-            sql.push_str(&format!(" AND process_path = ?{}", param_count));
+            where_sql.push_str(&format!(" AND process_path = ?{}", param_count));
             bind_values.push(rusqlite::types::Value::Text(process_path.clone()));
         }
 
         if let Some(ref remote_addr) = filters.remote_addr {
             param_count += 1;
-            sql.push_str(&format!(" AND remote_addr = ?{}", param_count));
+            where_sql.push_str(&format!(" AND remote_addr = ?{}", param_count));
             bind_values.push(rusqlite::types::Value::Text(remote_addr.clone()));
         }
 
         if let Some(direction) = direction_filter {
             param_count += 1;
-            sql.push_str(&format!(" AND direction = ?{}", param_count));
+            where_sql.push_str(&format!(" AND direction = ?{}", param_count));
             bind_values.push(rusqlite::types::Value::Text(json_to_string(&direction).into()));
         }
+
+        (where_sql, bind_values)
+    }
+
+    pub async fn get_network_history(&self, filters: &HistoryFilters) -> Result<Vec<NetworkHistoryRecord>> {
+        let (where_sql, bind_values) = Self::build_history_where(filters);
+        let mut sql = format!("SELECT * FROM network_history WHERE 1=1{}", where_sql);
 
         // 服务端排序：sort_by 走白名单映射到列名（白名单外的值回退 timestamp），
         // sort_order 只接受 ascending/descending（默认 DESC），严禁拼接用户输入。

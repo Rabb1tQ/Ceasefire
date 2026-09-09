@@ -802,6 +802,8 @@ pub enum IpcRequest {
     UpdateAppGroup { id: u32, group: AppGroup },
     DeleteAppGroup { id: u32 },
     SetAppGroupEnabled { id: u32, enabled: bool },
+    // 连接记录分页：真实总数（与 GetNetworkHistory 同一套筛选条件做 COUNT）
+    GetNetworkHistoryCount(HistoryFilters),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -845,6 +847,8 @@ pub enum IpcResponse {
     // 自定义分组管理（与 IpcRequest 末尾追加的新变体配对，见其注释）。
     // 同样只在枚举末尾追加，不改动既有变体（含 Error）的索引
     AppGroupCreated(AppGroup),
+    // 连接记录真实总数（与 IpcRequest 末尾追加的 GetNetworkHistoryCount 配对）
+    NetworkHistoryCount(u64),
 }
 
 /// GeoIP cache statistics for Tauri

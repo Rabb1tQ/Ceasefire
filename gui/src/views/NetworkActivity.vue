@@ -449,7 +449,6 @@ const drawerHistory = ref<NetworkHistoryRecord[]>([])
 const historyPage = ref(1)
 const historyPageSize = ref(10)
 const historyTotal = ref(0)
-let historyHasMore = false
 const historyFilters = ref<HistoryFilters>({
   action: undefined,
   protocol: undefined,
@@ -750,23 +749,27 @@ const loadDrawerHistory = async (silent = false) => {
   const requestedPath = selectedProcess.value.process_path
   if (!silent) drawerLoading.value = true
   try {
-    // 服务端分页：按当前页请求 pageSize 条（+1 探测是否有下一页），
-    // process_path / hours / 动作 / 协议 / 方向全部随 HistoryFilters 下发
+    // 服务端分页：按当前页请求 pageSize 条，process_path / hours / 动作 /
+    // 协议 / 方向全部随 HistoryFilters 下发；总数走独立的 COUNT 接口（
+    // get_network_history_count），分页器显示真实"共 N 条"，
+    // 不再前端估算
     const filters: HistoryFilters = {
       ...historyFilters.value,
       hours: historyFilters.value.hours ?? statsHours.value,
       process_path: selectedProcess.value.process_path,
-      limit: historyPageSize.value + 1,
+      limit: historyPageSize.value,
       offset: (historyPage.value - 1) * historyPageSize.value
     }
-    const records = await invoke<NetworkHistoryRecord[]>('get_network_history', { filters })
+    const [records, count] = await Promise.all([
+      invoke<NetworkHistoryRecord[]>('get_network_history', { filters }),
+      invoke<number>('get_network_history_count', {
+        filters: { ...filters, limit: undefined, offset: undefined }
+      })
+    ])
     // 响应期间用户可能已切换到另一个进程：过期响应整体丢弃
     if (selectedProcess.value?.process_path !== requestedPath) return
-    historyHasMore = records.length > historyPageSize.value
     drawerHistory.value = records.slice(0, historyPageSize.value)
-    const fetched = (historyPage.value - 1) * historyPageSize.value + drawerHistory.value.length
-    // 无精确 count 接口：还有下一页时估一页余量让"下一页"可点
-    historyTotal.value = historyHasMore ? fetched + historyPageSize.value : fetched
+    historyTotal.value = count
 
     // 反查域名（DNS 缓存）。带 IP→域名缓存，只查询本轮新增的 IP，
     // 避免每次轮询都对全部 IP 重复走管道往返

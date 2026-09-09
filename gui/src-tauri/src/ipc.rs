@@ -499,6 +499,19 @@ impl IpcClient {
         }
     }
 
+    /// 连接记录真实总数（分页器"共 N 条"用），筛选条件与 get_network_history 一致
+    pub async fn get_network_history_count(&self, filters: Option<HistoryFilters>) -> Result<u64, Box<dyn std::error::Error>> {
+        let filters = filters.unwrap_or_default();
+        let request = IpcRequest::GetNetworkHistoryCount(filters);
+        let response = self.send_request(request).await?;
+
+        match response {
+            IpcResponse::NetworkHistoryCount(count) => Ok(count),
+            IpcResponse::Error(message) => Err(message.into()),
+            _ => Err("Unexpected response".into()),
+        }
+    }
+
     pub async fn export_network_history(&self, filters: HistoryFilters, format: String) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
         let export_format = match format.as_str() {
             "csv" => ExportFormat::Csv,

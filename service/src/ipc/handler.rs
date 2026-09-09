@@ -331,6 +331,12 @@ impl RequestHandler {
                     Err(e) => IpcResponse::Error(e.to_string()),
                 }
             }
+            IpcRequest::GetNetworkHistoryCount(filters) => {
+                match self.db.count_network_history(&filters).await {
+                    Ok(count) => IpcResponse::NetworkHistoryCount(count),
+                    Err(e) => IpcResponse::Error(e.to_string()),
+                }
+            }
             IpcRequest::ExportNetworkHistory { filters, format } => {
                 match super::export::export_network_history(&self.db, &filters, format).await {
                     Ok(data) => IpcResponse::ExportData(data),
