@@ -1,0 +1,78 @@
+# Rust
+target/
+Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Tauri
+src-tauri/target/
+src-tauri/Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build
+dist/
+build/
+*.exe
+*.dll
+*.sys
+*.obj
+*.lib
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+*.log
+logs/
+
+# Test
+coverage/
+.nyc_output/
+
+# Environment
+.env
+.env.local
+.env.*.local
+# Release output
+release/
+
+# Driver build artifacts / Visual Studio cache
+driver/.vs/
+driver/bin/
+driver/obj/
+*.ipch
+*.suo
+*.vcxproj.user
+
+# Crash dumps
+dumps/
+*.dmp
+
+# GeoIP databases (large, licensed — downloaded separately)
+*.mmdb
+
+# Certificates / private test-signing material
+*.cer
+*.pfx
+doc

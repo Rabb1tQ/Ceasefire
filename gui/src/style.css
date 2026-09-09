@@ -1,0 +1,421 @@
+:root {
+  font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+  line-height: 1.4;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: #1f1f1f;
+  background-color: #ffffff;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 400;
+  color: #0067c0;
+  text-decoration: none;
+}
+a:hover {
+  color: #0044aa;
+  text-decoration: underline;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow: hidden;
+  font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+  background-color: #f5f5f5;
+}
+
+h1 {
+  font-size: 24px;
+  line-height: 1.3;
+  color: #1f1f1f;
+  margin: 0 0 16px 0;
+  font-weight: 600;
+}
+
+h2 {
+  font-size: 18px;
+  line-height: 1.3;
+  color: #1f1f1f;
+  margin: 0 0 12px 0;
+  font-weight: 600;
+}
+
+button {
+  border-radius: 0;
+  border: 1px solid #707070;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 400;
+  font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+  background-color: #f3f3f3;
+  cursor: pointer;
+  transition: background-color 0.1s;
+  min-height: 32px;
+}
+button:hover {
+  background-color: #e5e5e5;
+  border-color: #505050;
+}
+button:active {
+  background-color: #d5d5d5;
+  border-color: #404040;
+}
+button:focus,
+button:focus-visible {
+  outline: 2px solid #0067c0;
+  outline-offset: 2px;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.card {
+  padding: 16px;
+  border: 1px solid #d9d9d9;
+  background-color: #ffffff;
+}
+
+#app {
+  width: 100%;
+  height: 100vh;
+}
+
+/* Element Plus 覆盖 - 桌面风格 */
+.el-button--primary {
+  background-color: #0078d4 !important;
+  border-color: #0078d4 !important;
+  color: #ffffff !important;
+  border-radius: 0 !important;
+}
+
+.el-button--primary:hover {
+  background-color: #006cbd !important;
+  border-color: #006cbd !important;
+}
+
+.el-button--danger {
+  background-color: #d13438 !important;
+  border-color: #d13438 !important;
+  color: #ffffff !important;
+  border-radius: 0 !important;
+}
+
+.el-button--danger:hover {
+  background-color: #a82d30 !important;
+  border-color: #a82d30 !important;
+}
+
+.el-button--success {
+  background-color: #107c10 !important;
+  border-color: #107c10 !important;
+  color: #ffffff !important;
+  border-radius: 0 !important;
+}
+
+.el-button--warning {
+  background-color: #ca5010 !important;
+  border-color: #ca5010 !important;
+  color: #ffffff !important;
+  border-radius: 0 !important;
+}
+
+.el-card {
+  border-radius: 0 !important;
+  border: 1px solid #d9d9d9 !important;
+  box-shadow: none !important;
+}
+
+.el-card__header {
+  border-bottom: 1px solid #e0e0e0 !important;
+  padding: 12px 16px !important;
+  background-color: #f8f8f8 !important;
+  font-weight: 600 !important;
+}
+
+.el-card__body {
+  padding: 16px !important;
+}
+
+.el-input__wrapper {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: 1px solid #8a8a8a !important;
+  padding: 4px 12px !important;
+}
+
+.el-input__wrapper:hover {
+  border-color: #0078d4 !important;
+}
+
+.el-input__wrapper.is-focus {
+  border-color: #0078d4 !important;
+  box-shadow: 0 0 0 1px #0078d4 inset !important;
+}
+
+.el-select .el-input__wrapper {
+  border-radius: 0 !important;
+}
+
+.el-table {
+  border-radius: 0 !important;
+  border: 1px solid #d9d9d9 !important;
+}
+
+.el-table th.el-table__cell {
+  background-color: #f3f3f3 !important;
+  color: #1f1f1f !important;
+  font-weight: 600 !important;
+}
+
+.el-table td.el-table__cell {
+  border-color: #e0e0e0 !important;
+}
+
+.el-table--enable-row-hover .el-table__body tr:hover > td {
+  background-color: #f3f3f3 !important;
+}
+
+.el-table__row {
+  cursor: default !important;
+}
+
+.el-dialog {
+  border-radius: 0 !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+}
+
+.el-dialog__header {
+  border-bottom: 1px solid #e0e0e0 !important;
+  padding: 16px 24px !important;
+}
+
+.el-dialog__title {
+  font-weight: 600 !important;
+  font-size: 16px !important;
+}
+
+.el-dialog__body {
+  padding: 24px !important;
+}
+
+.el-dialog__footer {
+  border-top: 1px solid #e0e0e0 !important;
+  padding: 16px 24px !important;
+}
+
+.el-tabs__item {
+  border-radius: 0 !important;
+}
+
+.el-tabs__item.is-active {
+  border-bottom-color: #0078d4 !important;
+  color: #0078d4 !important;
+}
+
+.el-tabs__item:hover {
+  color: #0078d4 !important;
+}
+
+.el-tabs__active-bar {
+  background-color: #0078d4 !important;
+}
+
+.el-tag {
+  border-radius: 0 !important;
+  border: none !important;
+  font-weight: 500 !important;
+}
+
+.el-tag--danger {
+  background-color: #deecf9 !important;
+  color: #004578 !important;
+}
+
+.el-tag--success {
+  background-color: #dff6dd !important;
+  color: #107c10 !important;
+}
+
+.el-tag--warning {
+  background-color: #fff4ce !important;
+  color: #797775 !important;
+}
+
+.el-tag--info {
+  background-color: #f3f2f1 !important;
+  color: #323130 !important;
+}
+
+.el-form-item__label {
+  font-weight: 500 !important;
+  color: #1f1f1f !important;
+}
+
+.el-switch {
+  height: 20px !important;
+}
+
+.el-switch__core {
+  border-radius: 0 !important;
+}
+
+.el-checkbox {
+  font-weight: 400 !important;
+}
+
+.el-checkbox__label {
+  color: #1f1f1f !important;
+}
+
+.el-radio {
+  font-weight: 400 !important;
+}
+
+.el-radio__label {
+  color: #1f1f1f !important;
+}
+
+.el-pagination button {
+  border-radius: 0 !important;
+  border: 1px solid #8a8a8a !important;
+  background-color: #ffffff !important;
+}
+
+.el-pagination button:hover {
+  color: #0078d4 !important;
+}
+
+.el-pager li {
+  border-radius: 0 !important;
+  border: 1px solid #8a8a8a !important;
+  background-color: #ffffff !important;
+  margin: 0 2px !important;
+}
+
+.el-pager li.is-active {
+  background-color: #0078d4 !important;
+  color: #ffffff !important;
+  border-color: #0078d4 !important;
+}
+
+.el-pager li:hover {
+  color: #0078d4 !important;
+}
+
+.el-message-box {
+  border-radius: 0 !important;
+  border: 1px solid #d9d9d9 !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+}
+
+.el-message-box__title {
+  font-weight: 600 !important;
+}
+
+.el-message-box__btns button {
+  border-radius: 0 !important;
+}
+
+.el-drawer {
+  border-radius: 0 !important;
+}
+
+.el-drawer__header {
+  margin-bottom: 0 !important;
+  padding: 16px 24px !important;
+  border-bottom: 1px solid #e0e0e0 !important;
+  font-weight: 600 !important;
+}
+
+.el-drawer__body {
+  padding: 24px !important;
+}
+
+.el-divider {
+  border-color: #e0e0e0 !important;
+}
+
+.el-empty {
+  color: #797775 !important;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #1f1f1f;
+    background-color: #ffffff;
+  }
+}
+
+/* 桌面应用特有的实用样式 */
+.desktop-input {
+  border: 1px solid #8a8a8a;
+  padding: 6px 12px;
+  background-color: #ffffff;
+  font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+  font-size: 13px;
+  min-height: 32px;
+}
+
+.desktop-input:focus {
+  outline: 2px solid #0078d4;
+  outline-offset: -2px;
+}
+
+.desktop-btn {
+  border: 1px solid #707070;
+  padding: 6px 16px;
+  background-color: #f3f3f3;
+  font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  min-height: 32px;
+  min-width: 80px;
+}
+
+.desktop-btn:hover {
+  background-color: #e5e5e5;
+  border-color: #505050;
+}
+
+.desktop-btn.primary {
+  background-color: #0078d4;
+  border-color: #0078d4;
+  color: #ffffff;
+}
+
+.desktop-btn.primary:hover {
+  background-color: #006cbd;
+  border-color: #006cbd;
+}
+
+.desktop-btn.danger {
+  background-color: #d13438;
+  border-color: #d13438;
+  color: #ffffff;
+}
+
+.desktop-btn.danger:hover {
+  background-color: #a82d30;
+  border-color: #a82d30;
+}
+
+.desktop-btn.success {
+  background-color: #107c10;
+  border-color: #107c10;
+  color: #ffffff;
+}
+
+.desktop-btn.success:hover {
+  background-color: #0b660b;
+  border-color: #0b660b;
+}
